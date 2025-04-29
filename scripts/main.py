@@ -44,15 +44,16 @@ try:
     ]
 
     for link in url_links:
-        page_response = requests.get(link)
+        page_response = requests.get(link, timeout=10)
         if page_response.status_code == 200:
             page_content = BeautifulSoup(page_response.content, "html.parser")
+            print(page_content)
 
             title = page_content.find('div', class_="product-name")
 
             price = page_content.find('div', class_="product-box__price")
             price_val = float(price.text.strip().replace("Цена:", "").replace(" лв.", ""))
-            print(f"::notice ::✅ Успешно взета стойност: \n\033[1;37;40m{title.text.strip()}\033[0m - \033[1;35;40m{price_val}\033[0m")
+            print(f"::notice ::✅ Успешно взета стойност: \033[1;37;40m{title.text.strip()}\033[0m - \033[1;35;40m{price_val}\033[0m")
 
             save_data(path_csv_file, title.text.strip(), price_val)
         else:
