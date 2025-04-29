@@ -52,7 +52,7 @@ try:
 
             price = page_content.find('div', class_="product-box__price")
             price_val = float(price.text.strip().replace("Цена:", "").replace(" лв.", ""))
-            print(f"::notice ::✅ Успешно взета стойност: \033[1;37;40m{title.text.strip()}\033[0m - \033[1;35;40m{price_val}\033[0m")
+            print(f"::notice ::✅ Успешно взета стойност: \n\033[1;37;40m{title.text.strip()}\033[0m - \033[1;35;40m{price_val}\033[0m")
 
             save_data(path_csv_file, title.text.strip(), price_val)
         else:
