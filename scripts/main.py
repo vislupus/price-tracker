@@ -36,14 +36,15 @@ def save_data(path, title, price):
 
 clear_screen()
 
-try:
-    url_links = [
-        "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-SEAGATE-BASIC-STJL4000400/p/522176",
-        "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-TOSHIBA-CANVIO-BASICS-HDTB540EK3AA/p/500485",
-        "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-WESTERN-DIGITAL-ELEMENTS-WDBU6Y0040BBK-WESN/p/526269"
-    ]
 
-    for link in url_links:
+url_links = [
+    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-SEAGATE-BASIC-STJL4000400/p/522176",
+    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-TOSHIBA-CANVIO-BASICS-HDTB540EK3AA/p/500485",
+    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-WESTERN-DIGITAL-ELEMENTS-WDBU6Y0040BBK-WESN/p/526269"
+]
+
+for link in url_links:
+    try:
         page_response = requests.get(link, timeout=10)
         if page_response.status_code == 200:
             page_content = BeautifulSoup(page_response.content, "html.parser")
@@ -58,6 +59,7 @@ try:
             save_data(path_csv_file, title.text.strip(), price_val)
         else:
             print(f"::warning ::⚠️ Страницата върна код: {page_response.status_code}")
+            
+    except Exception as e:
+        print(f"::error ::❌ Грешка при скрапване: {e}")
 
-except Exception as e:
-    print(f"::error ::❌ Грешка при скрапване: {e}")
