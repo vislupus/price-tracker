@@ -2,9 +2,9 @@ import csv
 import os
 import requests
 from bs4 import BeautifulSoup
-from datetime import date
+from datetime import datetime
 
-today = date.today().strftime("%d-%m-%Y %X")
+today = datetime.today().strftime("%d-%m-%Y %X")
 
 path = os.getcwd()
 path_csv_file = os.path.join(path, "data/hdd_data.csv")
