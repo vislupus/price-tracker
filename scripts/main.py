@@ -36,20 +36,27 @@ def save_data(path, title, price):
 
 clear_screen()
 
-url_links = [
-    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-SEAGATE-BASIC-STJL4000400/p/522176",
-    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-TOSHIBA-CANVIO-BASICS-HDTB540EK3AA/p/500485",
-    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-WESTERN-DIGITAL-ELEMENTS-WDBU6Y0040BBK-WESN/p/526269"
-]
+try:
+    url_links = [
+        "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-SEAGATE-BASIC-STJL4000400/p/522176",
+        "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-TOSHIBA-CANVIO-BASICS-HDTB540EK3AA/p/500485",
+        "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-WESTERN-DIGITAL-ELEMENTS-WDBU6Y0040BBK-WESN/p/526269"
+    ]
 
-for link in url_links:
-    page_response = requests.get(link)
-    page_content = BeautifulSoup(page_response.content, "html.parser")
+    for link in url_links:
+        page_response = requests.get(link)
+        if page_response.status_code == 200:
+            page_content = BeautifulSoup(page_response.content, "html.parser")
 
-    title = page_content.find('div', class_="product-name")
+            title = page_content.find('div', class_="product-name")
 
-    price = page_content.find('div', class_="product-box__price")
-    price_val = float(price.text.strip().replace("Цена:", "").replace(" лв.", ""))
-    print(f"\033[1;37;40m{title.text.strip()}\033[0m - \033[1;35;40m{price_val}\033[0m")
+            price = page_content.find('div', class_="product-box__price")
+            price_val = float(price.text.strip().replace("Цена:", "").replace(" лв.", ""))
+            print(f"::notice ::✅ Успешно взета стойност: \n\033[1;37;40m{title.text.strip()}\033[0m - \033[1;35;40m{price_val}\033[0m")
 
-    save_data(path_csv_file, title.text.strip(), price_val)
+            save_data(path_csv_file, title.text.strip(), price_val)
+        else:
+            print(f"::warning ::⚠️ Страницата върна код: {page_response.status_code}")
+
+except Exception as e:
+    print(f"::error ::❌ Грешка при скрапване: {e}")
