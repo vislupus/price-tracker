@@ -7,7 +7,7 @@ from datetime import date
 today = date.today().strftime("%d-%m-%Y %X")
 
 path = os.getcwd()
-path_csv_file = os.path.join(path, "data\hdd_data.csv")
+path_csv_file = os.path.join(path, "data/hdd_data.csv")
 
 def clear_screen():
     os.system("cls" if os.name == "nt" else "clear")

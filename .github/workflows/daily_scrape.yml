@@ -24,13 +24,13 @@ jobs:
           pip install requests beautifulsoup4
 
       - name: Run scraping script
-        run: python scripts\main.py
+        run: python scripts/main.py
 
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data\hdd_data.csv
+          git add data/hdd_data.csv
           git commit -m "Daily update: $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
           git push
         env:
