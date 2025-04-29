@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-today = datetime.today(ZoneInfo('Europe/Sofia')).strftime("%d-%m-%Y %X")
+today = datetime.now(ZoneInfo('Europe/Sofia')).strftime("%d-%m-%Y %X")
 
 path = os.getcwd()
 path_csv_file = os.path.join(path, "data/hdd_data.csv")
