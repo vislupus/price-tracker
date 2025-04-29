@@ -5,6 +5,9 @@ on:
     - cron: '*/5 * * * *'  # Всеки ден в 06:00 UTC
   workflow_dispatch:     # Позволява и ръчно стартиране
 
+permissions:
+  contents: write
+
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
