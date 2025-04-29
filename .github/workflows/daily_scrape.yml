@@ -2,7 +2,7 @@ name: Daily Scrape
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Всеки ден в 06:00 UTC
+    - cron: '0 5 * * *'  # Всеки ден в 05:00 UTC
   workflow_dispatch:     # Позволява и ръчно стартиране
 
 permissions:
