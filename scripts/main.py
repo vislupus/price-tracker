@@ -40,7 +40,17 @@ clear_screen()
 url_links = [
     "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-SEAGATE-BASIC-STJL4000400/p/522176",
     "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-TOSHIBA-CANVIO-BASICS-HDTB540EK3AA/p/500485",
-    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-WESTERN-DIGITAL-ELEMENTS-WDBU6Y0040BBK-WESN/p/526269"
+    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-WESTERN-DIGITAL-ELEMENTS-WDBU6Y0040BBK-WESN/p/526269",
+    "https://www.technopolis.bg/bg/Audio-slushalki/Stereo-slushalki-CANYON-CNS-CBTHS3DG/p/301583",
+    "https://www.technopolis.bg/bg/Audio-slushalki/Stereo-slushalki-PANASONIC-RB-HF630BE-A/p/303084",
+    "https://www.technopolis.bg/bg/Audio-slushalki/Stereo-slushalki-CANYON-CNS-CBTHS10BK/p/302099",
+    "https://www.technopolis.bg/bg/Smartfoni-i-mobilni-telefoni/Smartfon-GSM--SAMSUNG-GALAXY-A56-5G-OLIVE/p/506853",
+    "https://www.technopolis.bg/bg/Smartfoni-i-mobilni-telefoni/Smartfon-GSM--SAMSUNG-GALAXY-A55-5G-A556-NAVY/p/503961",
+    "https://www.technopolis.bg/bg/Smartfoni-i-mobilni-telefoni/Smartfon-GSM--SAMSUNG-A35-5G-A356-NAVY/p/503949",
+    "https://www.technopolis.bg/bg/Smartfoni-i-mobilni-telefoni/Smartfon-GSM--XIAOMI-REDMI-NOTE-13-5G-WHITE/p/503414",
+    "https://www.technopolis.bg/bg/Dronove/Dron-XMART-FOLDING-S6-BLACK/p/301029",
+    "https://www.technopolis.bg/bg/Dronove/Dron-XMART-FOLDING-SG700D-BLACK/p/581296",
+    "https://www.technopolis.bg/bg/Dronove/Dron-TELLO-BY-DJI/p/581600"
 ]
 
 for link in url_links:
