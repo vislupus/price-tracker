@@ -27,6 +27,7 @@ def save_data(path, title, price):
             dialect="excel",
             delimiter=";",
             quoting=csv.QUOTE_NONE,
+            escapechar="\\"
         )
 
         if not check_header(path):
