@@ -56,6 +56,7 @@ url_links = [
     "https://www.technopolis.bg/bg/Laptopi/Gejming-laptop-LENOVO-LOQ-15IAX9-83GS002VBM/p/503805",
     "https://www.technopolis.bg/bg/Laptopi/Gejming-laptop-LENOVO-LOQ-15ARP9-83JC000HBM/p/504925",
     "https://www.technopolis.bg/bg/Laptopi/Gejming-laptop-LENOVO-LOQ-15ARP9-83JC0026BM/p/504923",
+    "https://www.technopolis.bg/bg/Laptopi/Gejming-laptop-LENOVO-LOQ-15APH8-82XT00DSBM/p/504150",
     "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-3-15IRH10-83K10076BM/p/507807",
     "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-5-15IRH9-83G1001BRM/p/506052",
     "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-3-15IRH10-83K1007FBM/p/507826",
