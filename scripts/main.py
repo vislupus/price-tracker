@@ -51,7 +51,15 @@ url_links = [
     "https://www.technopolis.bg/bg/Smartfoni-i-mobilni-telefoni/Smartfon-GSM--XIAOMI-REDMI-NOTE-13-5G-WHITE/p/503414",
     "https://www.technopolis.bg/bg/Dronove/Dron-XMART-FOLDING-S6-BLACK/p/301029",
     "https://www.technopolis.bg/bg/Dronove/Dron-XMART-FOLDING-SG700D-BLACK/p/581296",
-    "https://www.technopolis.bg/bg/Dronove/Dron-TELLO-BY-DJI/p/581600"
+    "https://www.technopolis.bg/bg/Dronove/Dron-TELLO-BY-DJI/p/581600",
+    "https://www.technopolis.bg/bg/Laptopi/Gejming-laptop-LENOVO-LOQ-15IRH8-82XV00LGBM/p/502885",
+    "https://www.technopolis.bg/bg/Laptopi/Gejming-laptop-LENOVO-LOQ-15IAX9-83GS002VBM/p/503805",
+    "https://www.technopolis.bg/bg/Laptopi/Gejming-laptop-LENOVO-LOQ-15ARP9-83JC000HBM/p/504925",
+    "https://www.technopolis.bg/bg/Laptopi/Gejming-laptop-LENOVO-LOQ-15ARP9-83JC0026BM/p/504923",
+    "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-3-15IRH10-83K10076BM/p/507807",
+    "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-5-15IRH9-83G1001BRM/p/506052",
+    "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-3-15IRH10-83K1007FBM/p/507826",
+    "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-5-16ARP10-83HU000HBM/p/507461",
 ]
 
 for link in url_links:
