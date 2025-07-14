@@ -79,12 +79,14 @@ for link in url_links:
                 price = price_box.find('div', class_="product-box__price")
                 
                 if price:
-                    price_val = float(price.text.strip().replace("Цена:", "").replace(" лв.", ""))
+                    price_val_text = price.text.strip().replace("Цена:", "").replace(" лв.", "").split("/")
+                    price_val = float(price_val_text[0])
                     print(f"::notice ::✅ Успешно взета стойност: \033[1;37;40m{title.text.strip()}\033[0m - \033[1;35;40m{price_val}\033[0m")
                 else:
                     prices = price_box.find('div', class_="prices")
                     price = prices.select_one('div.price:not(.old-price)')
-                    price_val = float(price.text.strip().replace("Цена:", "").replace(" лв.", "").replace(" .00", ""))
+                    price_val_text = price.text.strip().replace("Цена:", "").replace(" лв.", "").replace(" .00", "").split("/")
+                    price_val = float(price_val_text[0])
                     print(f"::notice ::✅ Успешно взета стойност: \033[1;37;40m{title.text.strip()}\033[0m - \033[1;35;40m{price_val}\033[0m")
                     
             else:
