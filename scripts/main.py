@@ -61,7 +61,11 @@ url_links = [
     "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-5-15IRH9-83G1001BRM/p/506052",
     "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-3-15IRH10-83K1007FBM/p/507826",
     "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-5-16ARP10-83HU000HBM/p/507461",
-    "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-5-16ARP10-83HU000SBM/p/507463"
+    "https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-5-16ARP10-83HU000SBM/p/507463",
+    "https://www.technopolis.bg/bg/Nastolni-kompyutri/Gejming-nastolen-kompyutar-GPLAY-GAMING-REACTOR/p/507697",
+    "https://www.technopolis.bg/bg/Nastolni-kompyutri/Gejming-nastolen-kompyutar-GRIGS-NOVA-ULTRA/p/503947",
+    "https://www.technopolis.bg/bg/Nastolni-kompyutri/Gejming-nastolen-kompyutar-RADIUS-FORTRESS-X3D/p/506750",
+    "https://www.technopolis.bg/bg/Nastolni-kompyutri/Gejming-nastolen-kompyutar-RADIUS-FORTRESS-X3D/p/506750"
 ]
 
 for link in url_links:
