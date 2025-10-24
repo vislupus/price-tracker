@@ -61,7 +61,7 @@ url_links = [
     "https://www.technopolis.bg/bg/Smartfoni-i-mobilni-telefoni/Smartfon-GSM--XIAOMI-REDMI-NOTE-14-PRO--5G-BLUE/p/506511",
     "https://www.technopolis.bg/bg/Dronove/Dron-XMART-FOLDING-S6-BLACK/p/301029",
     "https://www.technopolis.bg/bg/Dronove/Dron-XMART-FOLDING-SG700D-BLACK/p/581296",
-    "https://www.technopolis.bg/bg/Dronove/Dron-TELLO-BY-DJI/p/581600",
+    "https://www.technopolis.bg/bg/Dronove/Dron-XMART-FOLDING-GPS-SG108-MAX/p/302507",
     "https://www.technopolis.bg/bg/Laptopi/Gejming-laptop-LENOVO-LOQ-15IRH8-82XV00LGBM/p/502885",
     "https://www.technopolis.bg/bg/Laptopi/Gejming-laptop-LENOVO-LOQ-15IAX9-83GS002VBM/p/503805",
     "https://www.technopolis.bg/bg/Laptopi/Gejming-laptop-LENOVO-LOQ-15ARP9-83JC000HBM/p/504925",
