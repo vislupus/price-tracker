@@ -40,8 +40,12 @@ clear_screen()
 
 url_links = [
     "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-SEAGATE-BASIC-STJL4000400/p/522176",
+    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-SEAGATE-OneTouch-STKZ4000400/p/502958",
+    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-SEAGATE-EXPANSION-STKM4000400/p/522586",
+    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-Desktop-Drive-SEAGATE-EXPANSION-STKP8000400-8TB/p/522181",
     "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-TOSHIBA-CANVIO-BASICS-HDTB540EK3AA/p/500485",
     "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-WESTERN-DIGITAL-ELEMENTS-WDBU6Y0040BBK-WESN/p/526269",
+    "https://www.technopolis.bg/bg/Vanshni-diskove/Vanshen-disk-WESTERN-DIGITAL-MY-PASSPORT-WDBPKJ0040BBK-WESN/p/526274",
     "https://www.technopolis.bg/bg/Audio-slushalki/Stereo-slushalki-CANYON-CNS-CBTHS3DG/p/301583",
     "https://www.technopolis.bg/bg/Audio-slushalki/Stereo-slushalki-PANASONIC-RB-HF630BE-A/p/303084",
     "https://www.technopolis.bg/bg/Audio-slushalki/Stereo-slushalki-CANYON-CNS-CBTHS10BK/p/302099",
