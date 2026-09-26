@@ -1,173 +1,21 @@
-# Следене на цени (Техномаркет, Технополис)
+# Price Tracker
 
-Всяка сутрин GitHub Actions проверява цените на продуктите от `products.yaml`,
-записва ги в `data/prices.db` (SQLite) и праща съобщение в Slack, когато някоя
-цена падне под желаната. Историята се разглежда на статична страница в GitHub
-Pages, която чете базата директно в браузъра, без сървър.
+Automated price monitoring system for tracking products across multiple online stores.
 
-## Структура
+Currently supports **Technomarket**, with plans to expand to additional retailers.
 
-```
-products.yaml                 ← тук добавяш и махаш продукти
-data/prices.db                ← SQLite с цялата история (обновява се от Actions)
-data/hdd_data.csv             ← старата история в лева (вече е внесена в базата)
-docs/index.html               ← страницата с графиките
-scraper/                      ← кодът за проверката
-scraper/shops.py              ← поддържаните магазини
-scripts/import_legacy_csv.py  ← еднократен внос на стария CSV
-tests/                        ← тестове на парсера
-.github/workflows/            ← ежедневна проверка + публикуване на сайта
-```
+## Features
 
-## Добавяне на продукт
+- Automated product price scraping
+- Price history stored in SQLite
+- Scheduled execution via GitHub Actions
+- Slack notifications for price changes
+- Interactive price history dashboard via GitHub Pages
+- Extensible architecture for supporting multiple stores
 
-Отвори `products.yaml` (може и направо от уеб интерфейса на GitHub) и добави:
+## Supported Stores
 
-```yaml
-  - url: https://www.technomarket.bg/laptopi/...-09225898
-    category: Смартфони
-    target_price: 499      # в евро; махни реда, ако не искаш известия
-```
-
-След commit проверката тръгва веднага. Ако махнеш продукт от файла, историята
-му остава и се вижда в сайта като архивен. За временно спиране е по-удобно
-`active: false`.
-
-## Настройка (еднократно)
-
-### 1. Slack
-
-Токените се пазят като **Secrets** в хранилището, а не в кода:
-**Settings → Secrets and variables → Actions → New repository secret**.
-
-С бот (препоръчително):
-
-| Secret | Стойност |
+| Store | Status |
 |---|---|
-| `SLACK_BOT_TOKEN` | `xoxb-...` от api.slack.com/apps → твоя app → OAuth & Permissions. Нужен е scope `chat:write`. |
-| `SLACK_CHANNEL_ID` | ID на канала: десен бутон върху канала → View channel details → най-долу (`C0...`). |
-
-Ботът трябва да е в канала: напиши в него `/invite @името-на-бота`.
-
-Или с webhook: само `SLACK_WEBHOOK_URL` (`https://hooks.slack.com/services/...`).
-
-GitHub маскира стойностите на secrets в логовете.
-
-### 2. GitHub Pages
-
-**Settings → Pages → Build and deployment → Source: GitHub Actions.**
-
-Адресът е `https://<потребител>.github.io/<хранилище>/`. Ако е друг (напр.
-собствен домейн), добави го в **Settings → Secrets and variables → Actions →
-Variables** като `DASHBOARD_URL`, за да са верни линковете в Slack.
-
-> GitHub Pages от **private** хранилище изисква GitHub Pro (или Team/Enterprise).
-> С безплатен акаунт или направи хранилището публично, или отвори
-> `docs/index.html` локално и зареди `data/prices.db` с бутона
-> „Отвори друг .db файл“.
-
-### 3. Първо пускане
-
-**Actions → Проверка на цени → Run workflow.** След около минута в Slack
-трябва да дойдат първите известия (ако някоя цена вече е под целта), а сайтът
-се публикува.
-
-## Магазини
-
-| Магазин | Код в базата | Работи от GitHub |
-|---|---|---|
-| Техномаркет | `tm-` + 8 цифри от края на линка | да |
-| Технополис | числото след `/p/` | не – Cloudflare блокира адресите на GitHub |
-
-Магазинът се разпознава по линка. На Техномаркет цената се взема от блока на
-продукта (`data-product="<код>"`) – същата, която се вижда до бутона „Добави
-в количка“, заедно с препоръчителната цена (ПЦ) и наличността. Ако блокът
-липсва, се ползват schema.org данните и накрая текстът на страницата. Кой
-метод е сработил, се вижда в лога в скоби, например `[dom]`.
-
-Ако някоя страница не се прочете, HTML-ът ѝ се записва и се качва към
-изпълнението като артефакт **debug-html** (пази се 7 дни). Така може да се
-види какво е върнал сайтът и да се донастрои парсерът.
-
-## Проверка от твоя компютър
-
-Нужно е само за Технополис. Той е зад Cloudflare, който поиска проверка „не си робот“ за заявките
-от облака на GitHub (адресите на Microsoft Azure). В лога това изглежда така:
-`HTTP 403, server=cloudflare, cf-mitigated=challenge`. Кодът не може да го
-заобиколи от там, но от домашна връзка сайтът обикновено се отваря нормално.
-Затова проверката може да върви от твой компютър, а всичко останало (Slack,
-базата, сайтът с графиките) продължава да работи по същия начин.
-
-**1. Първо провери дали от вкъщи минава.** Инсталирай [uv](https://docs.astral.sh/uv/),
-клонирай хранилището и пусни:
-
-```bash
-uv run python -m scraper --dry-run
-```
-
-Ако видиш цените – продължи. Ако и тук е 403 от Cloudflare, стъпките по-долу
-няма да помогнат.
-
-**2. Регистрирай компютъра като runner.** В хранилището:
-**Settings → Actions → Runners → New self-hosted runner**, избери операционната
-система и изпълни командите, които GitHub показва (сваляне, `config` с токен).
-
-- Windows: при `config.cmd` отговори с `Y` на въпроса дали да се пуска като
-  услуга – така тръгва сам с компютъра. Нужен е [Git for Windows](https://git-scm.com/download/win),
-  защото стъпките в workflow-а са написани за bash.
-- Linux / macOS / Raspberry Pi: след `config.sh` пусни `sudo ./svc.sh install && sudo ./svc.sh start`.
-
-Python не е нужно да инсталираш – uv го сваля сам.
-
-**3. Кажи на workflow-а да го ползва.** **Settings → Secrets and variables →
-Actions → Variables → New repository variable**: име `RUNNER`, стойност
-`self-hosted`. За връщане към облака на GitHub просто изтрий променливата.
-
-Ако компютърът е изключен в 08:15, задачата чака в опашката до 24 часа и
-тръгва, щом го включиш. Публикуването на сайта остава в облака на GitHub.
-
-> Self-hosted runner е безопасен само за **private** хранилища. В публично
-> хранилище чужд pull request може да изпълни код на компютъра ти.
-
-## Кога идва известие
-
-Когато цената е равна или под `target_price` и:
-- това е първата проверка на продукта, или
-- вчера е била над целта, или
-- е поевтиняла още спрямо предната проверка.
-
-С `repeat_alerts_daily: true` в `settings` идва всеки ден, докато е под целта.
-При счупени линкове идва отделно съобщение (`notify_on_errors`).
-
-## Локално пускане
-
-```bash
-uv sync
-uv run python -m scraper --dry-run      # само показва, без запис и без Slack
-uv run python -m scraper --no-notify    # записва, без Slack
-uv run pytest                           # тестове
-```
-
-За страницата: `python -m http.server` в папка, където `index.html` е до
-`data/prices.db`, и отвори `http://localhost:8000`.
-
-## Как се чете цената
-
-Страницата на Технополис съдържа данните на три места. Скриптът ги пробва по ред:
-1. `application/ld+json` (schema.org Product) – най-стабилно, ползва се от Google;
-2. вътрешното състояние на сайта (`ng-state`) – оттук идва и информацията за промоция;
-3. HTML елементът с цената – резервен вариант.
-
-Ако линк пренасочва към друг продукт, това се отчита като грешка, а не се
-записва чужда цена.
-
-## Стара история
-
-Цените до 29.12.2025 г. са в лева и са внесени в базата, превърнати в евро по
-курс 1,95583. Около 24 точки от стария скрипт са отхвърлени като грешни
-(той записваше цената на предишния продукт, когато не намереше цена).
-Вносът може да се пусне отново – вече внесените редове се прескачат:
-
-```bash
-uv run python scripts/import_legacy_csv.py
-```
+| Technomarket | ✅ Supported |
+| Other retailers | 🔜 Planned |
