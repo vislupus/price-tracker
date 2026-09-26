@@ -15,7 +15,7 @@ from pathlib import Path
 
 from .config import ConfigError, load_config
 from .db import Database, utcnow_iso
-from .fetch import FetchError, fetch_html, make_session
+from .fetch import FetchError, Fetcher
 from .notify import SlackNotifier, errors_message, fmt_eur, price_alert_message
 from .parser import ParseError, parse_product_page
 
@@ -85,7 +85,7 @@ def run(config_path: Path, db_path: Path, dry_run: bool, notify: bool) -> int:
                        "или SLACK_WEBHOOK_URL) – известията се пропускат.")
     dashboard_url = os.getenv("DASHBOARD_URL", "").strip() or None
 
-    session = make_session()
+    fetcher = Fetcher(log=lambda m: log("info", m))
     checked_at = utcnow_iso()
     rows: list[dict] = []
     errors: list[dict] = []
@@ -94,7 +94,7 @@ def run(config_path: Path, db_path: Path, dry_run: bool, notify: bool) -> int:
         if i:
             time.sleep(config.settings.request_delay + random.uniform(0, 1))
         try:
-            html = fetch_html(session, p.url)
+            html = fetcher.get(p.url)
             snap = parse_product_page(html, p.code)
         except (FetchError, ParseError) as e:
             errors.append({"code": p.code, "url": p.url,
