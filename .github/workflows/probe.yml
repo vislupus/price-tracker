@@ -1,0 +1,35 @@
+name: Проверка на сайтове
+
+# Пуска се само ръчно: Actions → Проверка на сайтове → Run workflow.
+# Върви винаги в облака на GitHub, за да покаже дали сайтовете
+# блокират именно адресите на GitHub.
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "Адреси, разделени с интервал (празно = scripts/probe_sites.txt)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v7
+
+      - name: Инсталиране
+        run: uv sync --frozen --no-dev
+
+      - name: Проверка
+        env:
+          URLS: ${{ inputs.urls }}
+        run: |
+          set -f   # без разгъване на * и ? в адресите
+          uv run python scripts/probe_sites.py $URLS

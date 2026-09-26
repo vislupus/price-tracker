@@ -1,0 +1,22 @@
+# Адреси за проверка с workflow-а „Проверка на сайтове“.
+# По един на ред, редовете с # се пропускат.
+# Началните страници показват само дали сайтът блокира. За да видиш дали
+# и цената се чете, сложи линк към конкретен продукт.
+
+# Контрола – очакваме блок
+https://www.technopolis.bg/bg/Audio-slushalki/Stereo-slushalki-BOSE-QUIETCOMFORT-BLUE-DUSK/p/304598
+https://api.technopolis.bg/
+
+# Магазини за техника
+https://www.technomarket.bg/
+https://www.emag.bg/
+https://zora.bg/
+https://ardes.bg/
+https://www.jarcomputers.com/
+https://desktop.bg/
+https://plesio.bg/
+https://www.ozone.bg/
+
+# Сравнителни сайтове (понякога показват и цените на Технополис)
+https://www.pazaruvaj.com/
+https://www.pricemania.bg/

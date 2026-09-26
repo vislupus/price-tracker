@@ -14,9 +14,17 @@ concurrency:
 
 jobs:
   scrape:
-    runs-on: ubuntu-latest
+    # По подразбиране върви в облака на GitHub. Ако Cloudflare блокира
+    # адресите на GitHub, създай променлива RUNNER = self-hosted
+    # (Settings → Secrets and variables → Actions → Variables) и
+    # проверката ще върви от твоя компютър. Виж README.
+    runs-on: ${{ vars.RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     permissions:
       contents: write
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v7
 

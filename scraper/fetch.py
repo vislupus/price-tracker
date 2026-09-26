@@ -39,7 +39,7 @@ def describe_block(resp) -> str:
     parts = [f"HTTP {resp.status_code}"]
     if h.get("server"):
         parts.append(f"server={h['server']}")
-    for key in ("cf-mitigated", "cf-ray", "x-akamai-session-info", "x-iinfo", "x-datadome"):
+    for key in ("cf-mitigated", "x-akamai-session-info", "x-iinfo", "x-datadome"):
         if key in h:
             parts.append(f"{key}={h[key][:40]}")
     m = re.search(r"<title[^>]*>(.*?)</title>", resp.text or "", re.S | re.I)
@@ -127,4 +127,6 @@ class Fetcher:
         # Ако всички начини са блокирани по един и същ начин, показваме го веднъж
         reasons = {b.split(": ", 1)[1] for b in blocked}
         detail = reasons.pop() if len(reasons) == 1 else " | ".join(blocked)
-        raise FetchError(f"Сайтът блокира достъпа ({detail})")
+        if "cloudflare" in detail.lower() and "challenge" in detail.lower():
+            raise BlockedError(f"Cloudflare поиска проверка „не си робот“ ({detail})")
+        raise BlockedError(f"Сайтът блокира достъпа ({detail})")

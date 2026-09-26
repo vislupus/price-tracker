@@ -145,6 +145,11 @@ def run(config_path: Path, db_path: Path, dry_run: bool, notify: bool) -> int:
         text, blocks = errors_message(errors, len(products))
         slack.send(text, blocks)
 
+    if errors and not rows and all("Cloudflare" in e["error"] for e in errors):
+        log("error", "Cloudflare блокира всички заявки от този IP адрес. От облака на GitHub "
+                     "това не може да се заобиколи – пусни проверката от твой компютър "
+                     "(README → „Проверка от твоя компютър“).")
+
     write_step_summary(rows, errors)
     print(f"\nГотово: {len(rows)} успешни, {len(errors)} с грешка.")
 

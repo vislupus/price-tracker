@@ -48,6 +48,9 @@ class SlackNotifier:
                     timeout=15,
                 )
                 data = resp.json()
+                if not data.get("ok") and data.get("error") == "invalid_blocks" and blocks:
+                    # Ако форматираното съобщение не мине, пращаме поне обикновен текст
+                    return self.send(text)
                 if not data.get("ok"):
                     print(f"::warning ::Slack отказа съобщението: {data.get('error')}")
                     return False
@@ -55,6 +58,8 @@ class SlackNotifier:
 
             if self.mode == "webhook":
                 resp = requests.post(self.webhook, json=payload, timeout=15)
+                if resp.status_code == 400 and "invalid_blocks" in resp.text and blocks:
+                    return self.send(text)
                 if resp.status_code != 200:
                     print(f"::warning ::Slack webhook върна {resp.status_code}: {resp.text[:200]}")
                     return False
@@ -111,12 +116,34 @@ def price_alert_message(*, code, name, url, category, price, target, previous, l
     return text, blocks
 
 
+def _cut(text: str, n: int) -> str:
+    return text if len(text) <= n else text[: n - 1] + "…"
+
+
 def errors_message(errors: list[dict], total: int):
     text = f"⚠️ {len(errors)} от {total} продукта не можаха да бъдат прочетени"
-    body = "\n".join(f"• <{e['url']}|{e['name'] or e['code']}> – {e['error']}" for e in errors[:15])
+    reasons = {e["error"] for e in errors}
+
+    if len(errors) > 1 and len(reasons) == 1:
+        # Една и съща причина за всички – не я повтаряме
+        reason = reasons.pop()
+        names = ", ".join(f"<{e['url']}|{_cut(e['name'] or e['code'], 40)}>" for e in errors[:10])
+        body = f"Причина: {_cut(reason, 400)}\n{names}"
+    else:
+        body = "\n".join(
+            f"• <{e['url']}|{_cut(e['name'] or e['code'], 50)}> – {_cut(e['error'], 180)}"
+            for e in errors[:10]
+        )
+    if len(errors) > 10:
+        body += f"\n…и още {len(errors) - 10}"
+
+    hint = "Провери линковете в products.yaml."
+    if any("Cloudflare" in e["error"] for e in errors):
+        hint = ("Cloudflare блокира IP адреса, от който върви проверката. "
+                "Виж README → „Проверка от твоя компютър“.")
+
     blocks = [
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*{text}*\n{body}"}},
-        {"type": "context", "elements": [{"type": "mrkdwn",
-                                          "text": "Провери линковете в products.yaml."}]},
+        {"type": "section", "text": {"type": "mrkdwn", "text": _cut(f"*{text}*\n{body}", 2900)}},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": hint}]},
     ]
     return text, blocks
