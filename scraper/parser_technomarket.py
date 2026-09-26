@@ -2,12 +2,12 @@
 
 Методи по ред (първият, който даде цена, печели):
 
-  1. schema.org JSON-LD / microdata / meta тагове – стандартните места;
-  2. вграденото JSON състояние на приложението (ако има такова) – търси
-     се обект с кода на продукта и поле за цена;
-  3. текстът на страницата – блокът между заглавието (h1) и бутона
-     „Добави в количка“. Там е цената на самия продукт; цените на
-     подобните продукти и вноските са след бутона и не се броят.
+  1. блокът <div class="action" data-product="<код>"> – точно цената, която
+     се вижда до бутона „Добави в количка“, заедно със старата цена (ПЦ)
+     и наличността. Подобните продукти по-долу са в блокове без този код;
+  2. schema.org JSON-LD (Product с "sku" = кода);
+  3. microdata / meta тагове и вградено JSON – ако сайтът ги добави;
+  4. текстът след „Код на продукта: <код>“ до бутона – краен резервен вариант.
 """
 from __future__ import annotations
 
@@ -31,7 +31,28 @@ def _code_variants(code: str) -> set[str]:
     return {code, code.lstrip("0")}
 
 
-# ---- 1. стандартни структурирани данни ---------------------------------
+# ---- 1. блокът на продукта ----------------------------------------------
+
+def _from_dom(soup: BeautifulSoup, code: str) -> dict:
+    for block in soup.select("[data-product]"):
+        if str(block.get("data-product", "")).lstrip("0") != code.lstrip("0"):
+            continue
+        price_el = block.select_one(".price-wrapper .price") or block.select_one(".price")
+        if not price_el:
+            continue
+        # <span>1,249</span><span>.</span><span>00 </span><span>€</span> -> "1,249.00€"
+        price = parse_price_text(price_el.get_text("", strip=True))
+        if not price:
+            continue
+        old_el = block.select_one(".old-price")
+        old = parse_price_text(old_el.get_text("", strip=True)) if old_el else None
+        has_cart = block.select_one('[data-action="addCart"]') is not None
+        return {"price": price, "old_price": old, "in_stock": True if has_cart else None,
+                "limited": block.select_one(".limited-item") is not None}
+    return {}
+
+
+# ---- 2–3. стандартни структурирани данни --------------------------------
 
 def _from_microdata(soup: BeautifulSoup) -> dict:
     el = soup.find(attrs={"itemprop": "price"})
@@ -105,29 +126,23 @@ def _from_embedded_json(soup: BeautifulSoup, code: str) -> dict:
 
 # ---- 3. текстът на страницата ------------------------------------------
 
-def _main_block_text(soup: BeautifulSoup) -> tuple[str, str | None]:
+def _from_text(soup: BeautifulSoup, code: str) -> dict:
     for bad in soup(["script", "style", "noscript", "template"]):
         bad.decompose()
     h1 = soup.find("h1")
     name = " ".join(h1.get_text().split()) if h1 else None
-    text = soup.get_text("\n")
-    start = text.find(h1.get_text()) if h1 else 0
-    start = max(start, 0)
-    end = text.find("Добави в количка", start)
-    if end == -1:
-        end = start + 4000
-    return text[start:end], name
 
-
-def _from_text(soup: BeautifulSoup, code: str) -> dict:
-    block, name = _main_block_text(soup)
     # Цената често е разделена на няколко тага (<span>689</span>.<sup>00</sup>) –
     # сливаме текста в един ред и махаме интервалите около десетичния разделител.
-    block = " ".join(block.split())
-    block = re.sub(r"(\d)\s*([.,])\s*(\d{2})(?!\d)", r"\1\2\3", block)
-    m = re.search(r"Код на продукта:\s*(\d+)", block)
-    if m and m.group(1).lstrip("0") != code.lstrip("0"):
-        raise ParseError(f"Страницата е за продукт {m.group(1)}, а не за {code}.")
+    text = " ".join(soup.get_text(" ").split())
+    text = re.sub(r"(\d)\s*([.,])\s*(\d{2})(?!\d)", r"\1\2\3", text)
+
+    # Блокът започва от „Код на продукта: <нашия код>“ и свършва при бутона.
+    m = re.search(r"Код на продукта:\s*0*" + re.escape(code.lstrip("0")) + r"\b", text)
+    if not m:
+        return {"name": name}
+    end = text.find("Добави в количка", m.end())
+    block = text[m.end(): end if end != -1 else m.end() + 1500]
 
     current, old = None, None
     for t in PRICE_RE.finditer(block):
@@ -150,14 +165,19 @@ def _from_text(soup: BeautifulSoup, code: str) -> dict:
 def parse_technomarket_page(html: str, code: str) -> Snapshot:
     soup = BeautifulSoup(html, "html.parser")
 
+    dom = _from_dom(soup, code)
     ld = _from_ld_json(soup)
     if ld.get("sku") and ld["sku"].lstrip("0") != code.lstrip("0"):
-        ld = {}  # JSON-LD за друг продукт (напр. препоръчан) – не го ползваме
-    md = _from_microdata(soup) if not ld.get("price") else {}
-    js = _from_embedded_json(soup, code) if not (ld.get("price") or md.get("price")) else {}
-    tx = _from_text(BeautifulSoup(html, "html.parser"), code)  # за име, наличност и стара цена
+        raise ParseError(f"Страницата е за продукт {ld['sku']}, а не за {code} "
+                         "– вероятно линкът пренасочва.")
+    have = dom.get("price") or ld.get("price")
+    md = _from_microdata(soup) if not have else {}
+    js = _from_embedded_json(soup, code) if not (have or md.get("price")) else {}
+    tx = _from_text(BeautifulSoup(html, "html.parser"), code)  # име, резервна цена
 
-    if ld.get("price"):
+    if dom.get("price"):
+        price, source = dom["price"], "dom"
+    elif ld.get("price"):
         price, source = ld["price"], "ld+json"
     elif md.get("price"):
         price, source = md["price"], "microdata"
@@ -169,9 +189,11 @@ def parse_technomarket_page(html: str, code: str) -> Snapshot:
         raise ParseError("Не е намерена цена на страницата (продуктът може да е спрян).")
 
     currency = (ld.get("currency") or md.get("currency") or "EUR").upper()
-    in_stock = ld.get("in_stock") if ld.get("in_stock") is not None else tx.get("in_stock")
+    in_stock = dom.get("in_stock")
+    if in_stock is None:
+        in_stock = ld.get("in_stock") if ld.get("in_stock") is not None else tx.get("in_stock")
     name = tx.get("name") or ld.get("name") or js.get("name")
-    old = tx.get("old_price")
+    old = dom.get("old_price") or tx.get("old_price")
 
     return Snapshot(
         code=code,
