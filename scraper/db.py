@@ -6,7 +6,7 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS products (
     code          TEXT PRIMARY KEY,          -- код от Технополис (/p/<код>)
     name          TEXT,
     url           TEXT,
+    shop          TEXT NOT NULL DEFAULT 'technopolis', -- technopolis | technomarket
     category      TEXT,
     target_price  REAL,                      -- желана цена, EUR
     brand         TEXT,
@@ -66,11 +67,18 @@ class Database:
         self.conn.execute("PRAGMA journal_mode=DELETE")
         self.conn.execute("PRAGMA foreign_keys=ON")
         self.conn.executescript(SCHEMA)
+        self._migrate()
         self.conn.execute(
             "INSERT OR REPLACE INTO meta(key, value) VALUES ('schema_version', ?)",
             (str(SCHEMA_VERSION),),
         )
         self.conn.commit()
+
+    def _migrate(self) -> None:
+        cols = {r["name"] for r in self.conn.execute("PRAGMA table_info(products)")}
+        if "shop" not in cols:  # бази от версия 1 – всичко там е от Технополис
+            self.conn.execute(
+                "ALTER TABLE products ADD COLUMN shop TEXT NOT NULL DEFAULT 'technopolis'")
 
     def close(self) -> None:
         self.conn.commit()
@@ -86,18 +94,19 @@ class Database:
             codes.append(p.code)
             self.conn.execute(
                 """
-                INSERT INTO products(code, name, url, category, target_price, active,
+                INSERT INTO products(code, name, url, shop, category, target_price, active,
                                      created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(code) DO UPDATE SET
                     url = excluded.url,
+                    shop = excluded.shop,
                     category = excluded.category,
                     target_price = excluded.target_price,
                     active = excluded.active,
                     name = COALESCE(?, products.name),
                     updated_at = excluded.updated_at
                 """,
-                (p.code, p.name, p.url, p.category, p.target_price, int(p.active),
+                (p.code, p.name, p.url, p.shop, p.category, p.target_price, int(p.active),
                  now, now, p.name),
             )
         if codes:

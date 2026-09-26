@@ -85,11 +85,16 @@ def _iter_ld_objects(soup: BeautifulSoup):
 
 def _from_ld_json(soup: BeautifulSoup) -> dict:
     for obj in _iter_ld_objects(soup):
-        if not isinstance(obj, dict) or obj.get("@type") != "Product":
+        if not isinstance(obj, dict):
+            continue
+        kind = obj.get("@type")
+        if not (kind == "Product" or (isinstance(kind, list) and "Product" in kind)):
             continue
         offers = obj.get("offers") or {}
         if isinstance(offers, list):
             offers = offers[0] if offers else {}
+        if offers.get("@type") == "AggregateOffer" and not offers.get("price"):
+            offers = {**offers, "price": offers.get("lowPrice")}
         brand = obj.get("brand")
         if isinstance(brand, dict):
             brand = brand.get("name")

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Цени в Технополис</title>
+<title>Следене на цени</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M4 4h13l11 11-13 13L4 17z' fill='%233355d6'/><circle cx='10' cy='10' r='2.5' fill='white'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -185,7 +185,7 @@
 <header class="top">
   <div class="brand">
     <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 4h13l11 11-13 13L4 17z" fill="var(--cobalt)"/><circle cx="10" cy="10" r="2.5" fill="var(--surface)"/></svg>
-    Цени в Технополис
+    Следене на цени
   </div>
   <span class="updated" id="updated"></span>
   <span class="spacer"></span>
@@ -219,6 +219,8 @@
   const $ = (s, el = document) => el.querySelector(s);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const fmtEur = (v) => (v == null ? "—" : eur.format(v));
+  const SHOP_NAMES = { technopolis: "Технополис", technomarket: "Техномаркет" };
+  const shopName = (p) => SHOP_NAMES[p.shop] || p.shop || "";
 
   const state = {
     SQL: null,
@@ -281,7 +283,9 @@
   }
 
   function readData(db) {
-    const products = rows(db, "SELECT code, name, url, category, target_price, brand, image, active, legacy FROM products");
+    const cols = rows(db, "PRAGMA table_info(products)").map((c) => c.name);
+    const shopCol = cols.includes("shop") ? "shop" : "'technopolis' AS shop";
+    const products = rows(db, `SELECT code, name, url, ${shopCol}, category, target_price, brand, image, active, legacy FROM products`);
     const prices = rows(db, "SELECT code, checked_at, price, in_stock, is_promo, promo_end, source FROM prices ORDER BY code, checked_at, id");
     const lastRun = rows(db, "SELECT * FROM runs WHERE finished_at IS NOT NULL ORDER BY id DESC LIMIT 1")[0];
 
@@ -332,7 +336,7 @@
   function visibleProducts() {
     const q = state.query.trim().toLowerCase();
     return state.products
-      .filter((p) => state.showArchive || p.active)
+      .filter((p) => p.active || (state.showArchive && p.last))
       .filter((p) => !q || p.name.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q) || p.code.includes(q))
       .sort((a, b) =>
         (a.active === b.active ? 0 : a.active ? -1 : 1) ||
@@ -341,6 +345,12 @@
   }
 
   function statusLine(p) {
+    const s = statusCore(p);
+    const shop = p.legacy ? "" : shopName(p);
+    return { ...s, text: shop ? `${shop}, ${s.text}` : s.text };
+  }
+
+  function statusCore(p) {
     if (!p.last) return { text: "още няма данни", hit: false };
     if (!p.active) return { text: `последно ${dateFmt.format(new Date(p.last.t))}`, hit: false };
     if (p.target_price == null) return { text: "без желана цена", hit: false };
@@ -433,14 +443,14 @@
   function renderDetail(p) {
     const pts = state.series.get(p.code) || [];
     const links = [
-      p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">Отвори в Технополис</a>` : "",
+      p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">Отвори в ${esc(shopName(p))}</a>` : "",
       p.last ? `<span class="cat">проверено ${dateTimeFmt.format(new Date(p.last.t))}</span>` : "",
     ].filter(Boolean).join("");
 
     $("#detail").innerHTML = `
       <div class="head">
         <div>
-          <div class="cat">${esc(p.category || "")}${p.brand ? `, ${esc(p.brand)}` : ""}${p.active ? "" : " (не се следи)"}</div>
+          <div class="cat">${esc(p.category || "")}${p.legacy ? "" : `, ${esc(shopName(p))}`}${p.brand ? `, ${esc(p.brand)}` : ""}${p.active ? "" : " (не се следи)"}</div>
           <h1 class="title">${esc(p.name)}</h1>
           <div class="links">${links}</div>
         </div>

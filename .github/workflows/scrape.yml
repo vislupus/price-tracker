@@ -45,6 +45,14 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           DASHBOARD_URL: ${{ vars.DASHBOARD_URL || format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
 
+      - name: HTML на непрочетените страници
+        if: ${{ !cancelled() && hashFiles('debug/*.html') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: debug-html
+          path: debug/
+          retention-days: 7
+
       - name: Запис на базата
         if: ${{ !cancelled() }}
         run: |

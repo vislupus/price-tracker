@@ -86,7 +86,7 @@ def fmt_eur(value: float | None) -> str:
     return f"{value:,.2f} €".replace(",", " ")
 
 
-def price_alert_message(*, code, name, url, category, price, target, previous, lowest,
+def price_alert_message(*, code, name, url, shop_name, category, price, target, previous, lowest,
                         in_stock, promo_end, dashboard_url):
     lines = [f"*Цена:* {fmt_eur(price)}   ·   *цел:* {fmt_eur(target)}"]
     if previous is not None and previous != price:
@@ -102,14 +102,14 @@ def price_alert_message(*, code, name, url, category, price, target, previous, l
     if in_stock is False:
         lines.append("⚠️ В момента няма наличност онлайн")
 
-    links = [f"<{url}|Отвори в Технополис>"]
+    links = [f"<{url}|Отвори в {shop_name}>"]
     if dashboard_url:
         links.append(f"<{dashboard_url.rstrip('/')}/#{code}|Графика>")
 
     text = f"🔔 {name} е {fmt_eur(price)} (цел {fmt_eur(target)})"
     blocks = [
         {"type": "section", "text": {"type": "mrkdwn",
-                                     "text": f"🔔 *<{url}|{name}>*\n_{category}_"}},
+                                     "text": f"🔔 *<{url}|{name}>*\n_{category}, {shop_name}_"}},
         {"type": "section", "text": {"type": "mrkdwn", "text": "\n".join(lines)}},
         {"type": "context", "elements": [{"type": "mrkdwn", "text": "   ".join(links)}]},
     ]

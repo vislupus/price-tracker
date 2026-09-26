@@ -1,13 +1,12 @@
 """Зареждане и проверка на products.yaml."""
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
 
-CODE_RE = re.compile(r"/p/(\d+)")
+from .shops import shop_for_url
 
 
 class ConfigError(Exception):
@@ -18,6 +17,7 @@ class ConfigError(Exception):
 class ProductConfig:
     code: str
     url: str
+    shop: str
     category: str
     target_price: float | None = None
     name: str | None = None
@@ -42,8 +42,10 @@ class Config:
 
 
 def extract_code(url: str) -> str | None:
-    m = CODE_RE.search(url)
-    return m.group(1) if m else None
+    """Кодът, под който продуктът се пази в базата (с префикс на магазина)."""
+    shop = shop_for_url(url)
+    raw = shop.raw_code(url) if shop else None
+    return shop.db_code(raw) if raw else None
 
 
 def load_config(path: str | Path) -> Config:
@@ -76,9 +78,14 @@ def load_config(path: str | Path) -> Config:
             continue
 
         url = str(item.get("url") or "").strip()
+        shop = shop_for_url(url) if url else None
+        if not shop:
+            errors.append(f"{where}: липсва url или магазинът не се поддържа ({url or '—'}). "
+                          "Поддържат се technopolis.bg и technomarket.bg.")
+            continue
         code = extract_code(url)
-        if not url or not code:
-            errors.append(f"{where}: липсва url или в него няма '/p/<код>' ({url or '—'}).")
+        if not code:
+            errors.append(f"{where}: в линка не е намерен код на продукт ({url}).")
             continue
 
         category = str(item.get("category") or "").strip()
@@ -106,6 +113,7 @@ def load_config(path: str | Path) -> Config:
             ProductConfig(
                 code=code,
                 url=url,
+                shop=shop.key,
                 category=category,
                 target_price=target,
                 name=(str(item["name"]).strip() if item.get("name") else None),

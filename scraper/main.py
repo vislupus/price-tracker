@@ -17,9 +17,11 @@ from .config import ConfigError, load_config
 from .db import Database, utcnow_iso
 from .fetch import FetchError, Fetcher
 from .notify import SlackNotifier, errors_message, fmt_eur, price_alert_message
-from .parser import ParseError, parse_product_page
+from .parser import ParseError
+from .shops import SHOP_BY_KEY
 
 ROOT = Path(__file__).resolve().parent.parent
+DEBUG_DIR = ROOT / "debug"
 IN_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
 
 
@@ -30,6 +32,14 @@ def log(level: str, msg: str) -> None:
         print(f"::{level} ::{msg}")
     else:
         print(f"{icons.get(level, '')} {msg}")
+
+
+def save_debug_html(code: str, html: str) -> None:
+    """Пази страницата, която не можа да се прочете – за донастройка на парсера.
+    В GitHub Actions папката се качва като артефакт „debug-html“."""
+    DEBUG_DIR.mkdir(exist_ok=True)
+    (DEBUG_DIR / f"{code}.html").write_text(html, encoding="utf-8")
+    log("info", f"HTML-ът е записан в debug/{code}.html")
 
 
 def should_alert(price: float, target: float | None, previous: float | None,
@@ -93,15 +103,21 @@ def run(config_path: Path, db_path: Path, dry_run: bool, notify: bool) -> int:
     for i, p in enumerate(products):
         if i:
             time.sleep(config.settings.request_delay + random.uniform(0, 1))
+        shop = SHOP_BY_KEY[p.shop]
+        html = None
         try:
             html = fetcher.get(p.url)
-            snap = parse_product_page(html, p.code)
+            snap = shop.parse(html, p.code)
         except (FetchError, ParseError) as e:
+            if html is not None:
+                save_debug_html(p.code, html)
             errors.append({"code": p.code, "url": p.url,
                            "name": p.name or db.product_name(p.code), "error": str(e)})
             log("error", f"{p.code} {p.url} – {e}")
             continue
         except Exception as e:  # noqa: BLE001 – не спираме заради един продукт
+            if html is not None:
+                save_debug_html(p.code, html)
             errors.append({"code": p.code, "url": p.url,
                            "name": p.name or db.product_name(p.code),
                            "error": f"{type(e).__name__}: {e}"})
@@ -126,11 +142,12 @@ def run(config_path: Path, db_path: Path, dry_run: bool, notify: bool) -> int:
                      "target": p.target_price, "previous": previous, "alert": alert})
 
         promo = " (промо)" if snap.is_promo else ""
-        log("notice", f"{name}: {fmt_eur(snap.price)}{promo} [{snap.source}]")
+        log("notice", f"{shop.name}: {name}: {fmt_eur(snap.price)}{promo} [{snap.source}]")
 
         if alert and notify:
             text, blocks = price_alert_message(
-                code=p.code, name=name, url=p.url, category=p.category, price=snap.price,
+                code=p.code, name=name, url=p.url, shop_name=shop.name,
+                category=p.category, price=snap.price,
                 target=p.target_price, previous=previous, lowest=lowest_before,
                 in_stock=snap.in_stock, promo_end=snap.promo_end, dashboard_url=dashboard_url,
             )

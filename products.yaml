@@ -1,16 +1,17 @@
 # ─────────────────────────────────────────────────────────────
-#  Списък с продукти за следене в Технополис
+#  Списък с продукти за следене
 # ─────────────────────────────────────────────────────────────
 #
+#  Поддържани магазини: technomarket.bg, technopolis.bg
+#  (магазинът се разпознава по линка).
+#
 #  Всеки продукт има:
-#    url           – линк към продукта (кодът се взима от /p/<код>)
+#    url           – линк към продукта
 #    category      – твоя категория (свободен текст, по нея се групира в сайта)
 #    target_price  – желана цена в EUR. Когато цената стане <= на нея,
 #                    идва съобщение в Slack. Махни реда, ако не искаш известия.
 #    name          – (по избор) твое име; иначе се взима от сайта
 #    active        – (по избор) false = спира проверката, историята се пази
-#
-#  Цените по-долу са ориентировъчни – сложи твоите.
 # ─────────────────────────────────────────────────────────────
 
 settings:
@@ -23,26 +24,44 @@ settings:
   request_delay: 2
 
 products:
+  # ── Техномаркет ───────────────────────────────────────────
+  - url: https://www.technomarket.bg/laptopi/lenovo-ideapad-slim-3-15irh10-83k10075bm-09225898
+    category: Лаптопи
+    target_price: 649          # сега 689 €
+
+  - url: https://www.technomarket.bg/telefoni/samsung-galaxy-s26-ultra-5g-256gb-ds-black-s948-09238364
+    category: Смартфони
+    target_price: 1149         # сега 1 249 €
+
+  # ── Технополис ────────────────────────────────────────────
+  # Cloudflare блокира заявките от GitHub, затова са спрени.
+  # Смени на active: true, ако пуснеш проверката от твой компютър.
   - url: https://www.technopolis.bg/bg/Smartfoni-i-mobilni-telefoni/Smartfon-GSM--POCO-F9-Ultra-512-16-Black/p/513937
     category: Смартфони
     target_price: 750
+    active: false
 
   - url: https://www.technopolis.bg/bg/Smartfoni-i-mobilni-telefoni/Smartfon-GSM--SAMSUNG-GALAXY-A17-5G-A176-BLACK/p/508325
     category: Смартфони
     target_price: 180
+    active: false
 
   - url: https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-3-15IWC11-83RR00U1BM/p/514037
     category: Лаптопи
     target_price: 600
+    active: false
 
   - url: https://www.technopolis.bg/bg/Audio-slushalki/Stereo-slushalki-BOSE-QUIETCOMFORT-BLUE-DUSK/p/304598
     category: Слушалки
     target_price: 239
+    active: false
 
   - url: https://www.technopolis.bg/bg/Ekshan-kameri/Ekshan-kamera-XMART-WF430-4K/p/45108
     category: Екшън камери
     target_price: 45
+    active: false
 
   - url: https://www.technopolis.bg/bg/Ekshan-kameri/Ekshan-kamera-AKASO-V50-X/p/300864
     category: Екшън камери
     target_price: 130
+    active: false
