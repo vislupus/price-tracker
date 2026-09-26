@@ -4,19 +4,31 @@
 # и цената се чете, сложи линк към конкретен продукт.
 
 # Контрола – очакваме блок
-https://www.technopolis.bg/bg/Audio-slushalki/Stereo-slushalki-BOSE-QUIETCOMFORT-BLUE-DUSK/p/304598
-https://api.technopolis.bg/
+# https://www.technopolis.bg/bg/Audio-slushalki/Stereo-slushalki-BOSE-QUIETCOMFORT-BLUE-DUSK/p/304598
+# https://api.technopolis.bg/
 
 # Магазини за техника
-https://www.technomarket.bg/
-https://www.emag.bg/
-https://zora.bg/
-https://ardes.bg/
-https://www.jarcomputers.com/
-https://desktop.bg/
-https://plesio.bg/
-https://www.ozone.bg/
+# https://www.technomarket.bg/
+# https://www.emag.bg/
+# https://zora.bg/
+# https://ardes.bg/
+# https://www.jarcomputers.com/
+# https://desktop.bg/
+# https://plesio.bg/
+# https://www.ozone.bg/
 
 # Сравнителни сайтове (понякога показват и цените на Технополис)
-https://www.pazaruvaj.com/
-https://www.pricemania.bg/
+# https://www.pazaruvaj.com/
+# https://www.pricemania.bg/
+
+https://www.lcwaikiki.bg/
+https://www.reserved.com/bg/bg/
+https://www2.hm.com/bg_bg/index.html
+https://www.newyorker.de/bg/
+https://www.tom-tailor.bg/
+https://www.aboutyou.bg/tvoyat-magazin
+https://www.uniqlo.com/eu-bg/en/
+
+https://tours.bikearea.org/category/grupa-treking/
+https://cedadventures.com/
+https://rual-travel.com/
