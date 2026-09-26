@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Цени в Технополис</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M4 4h13l11 11-13 13L4 17z' fill='%233355d6'/><circle cx='10' cy='10' r='2.5' fill='white'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f3f5f8;
+    --surface: #ffffff;
+    --ink: #19202c;
+    --muted: #677285;
+    --line: #dfe3ea;
+    --cobalt: #3355d6;
+    --cobalt-soft: rgba(51, 85, 214, .14);
+    --good: #12805a;
+    --good-soft: #e3f4ec;
+    --warn: #b4461b;
+    --radius: 14px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #121720;
+      --surface: #1a212d;
+      --ink: #e7ebf2;
+      --muted: #939db0;
+      --line: #2c3544;
+      --cobalt: #7f98ff;
+      --cobalt-soft: rgba(127, 152, 255, .18);
+      --good: #4cc995;
+      --good-soft: rgba(76, 201, 149, .14);
+      --warn: #f08a5d;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 15px/1.5 "Onest", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, select { font: inherit; color: inherit; }
+  a { color: var(--cobalt); }
+  :focus-visible { outline: 2px solid var(--cobalt); outline-offset: 2px; border-radius: 6px; }
+
+  /* ---------- шапка ---------- */
+  .top {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; }
+  .brand svg { width: 24px; height: 24px; }
+  .updated { color: var(--muted); font-size: 14px; }
+  .top .spacer { flex: 1; }
+  .ghost-btn {
+    border: 1px solid var(--line); background: var(--surface);
+    padding: 7px 14px; border-radius: 999px; cursor: pointer; font-size: 14px;
+  }
+  .ghost-btn:hover { border-color: var(--muted); }
+
+  .issues {
+    margin: 0; padding: 10px 28px; font-size: 14px;
+    background: color-mix(in srgb, var(--warn) 10%, var(--paper));
+    border-bottom: 1px solid var(--line);
+  }
+  .issues summary { cursor: pointer; color: var(--warn); font-weight: 600; }
+  .issues ul { margin: 8px 0 2px; padding-left: 20px; }
+
+  /* ---------- основна подредба ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    min-height: calc(100vh - 66px);
+  }
+  .rail {
+    border-right: 1px solid var(--line);
+    padding: 18px 14px 18px 20px;
+    position: sticky; top: 0; align-self: start;
+    max-height: 100vh; overflow-y: auto;
+  }
+  .search {
+    width: 100%; padding: 9px 12px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--surface);
+  }
+  .group { margin-top: 20px; }
+  .group h2 {
+    margin: 0 0 6px 8px; font-size: 13px; font-weight: 600; color: var(--muted);
+  }
+  .item {
+    display: grid; grid-template-columns: 1fr auto; gap: 2px 12px;
+    width: 100%; text-align: left; border: 0; background: none;
+    padding: 9px 10px; border-radius: 10px; cursor: pointer;
+  }
+  .item:hover { background: var(--surface); }
+  .item[aria-current="true"] { background: var(--surface); box-shadow: inset 3px 0 0 var(--cobalt); }
+  .item .nm {
+    font-size: 14px; line-height: 1.35;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .item .pr { font-weight: 600; font-size: 14px; white-space: nowrap; }
+  .item .st { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); }
+  .item .st.hit { color: var(--good); font-weight: 600; }
+  .rail-foot { margin: 22px 8px 4px; font-size: 13.5px; color: var(--muted); }
+  .rail-foot label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+
+  /* ---------- детайл ---------- */
+  .detail { padding: 26px 32px 40px; min-width: 0; }
+  .head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px 32px; align-items: end; }
+  .cat { color: var(--muted); font-size: 14px; }
+  .title { margin: 4px 0 8px; font-size: clamp(20px, 2.2vw, 26px); line-height: 1.25; font-weight: 700; max-width: 40ch; }
+  .links { display: flex; gap: 16px; font-size: 14px; flex-wrap: wrap; }
+
+  /* Етикет с цена – единственият „силен“ елемент на страницата */
+  .tag { text-align: right; }
+  .tag .amount { display: inline-flex; align-items: flex-start; line-height: .9; font-weight: 800; letter-spacing: -.02em; }
+  .tag .whole { font-size: clamp(54px, 7vw, 84px); }
+  .tag .cents { font-size: clamp(22px, 2.8vw, 34px); margin: .18em 0 0 .08em; border-bottom: 3px solid currentColor; line-height: 1; }
+  .tag .cur { font-size: clamp(22px, 2.8vw, 34px); margin: .18em 0 0 .18em; font-weight: 600; }
+  .tag.hit .amount { color: var(--good); }
+  .tag .note { margin-top: 8px; font-size: 14px; color: var(--muted); }
+  .tag .note b { color: var(--ink); font-weight: 600; }
+  .tag.hit .note b { color: var(--good); }
+  .promo { display: inline-block; margin-top: 6px; font-size: 13px; padding: 2px 10px; border-radius: 999px; background: var(--cobalt-soft); color: var(--cobalt); font-weight: 600; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+    margin: 28px 0 10px;
+  }
+  .presets { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--surface); }
+  .presets button { white-space: nowrap; border: 0; background: none; padding: 5px 12px; border-radius: 999px; cursor: pointer; font-size: 14px; color: var(--muted); }
+  .presets button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .dates { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+  .dates input { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 5px 8px; }
+
+  .chart-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 6px 0; }
+  #chart { width: 100%; height: min(58vh, 520px); min-height: 320px; }
+
+  .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 18px; border-top: 1px solid var(--line); }
+  .stat { padding: 14px 16px 0 0; }
+  .stat dt { font-size: 13px; color: var(--muted); }
+  .stat dd { margin: 2px 0 0; font-size: 19px; font-weight: 700; }
+  .stat small { display: block; font-size: 12.5px; color: var(--muted); font-weight: 400; }
+  .down { color: var(--good); }
+  .up { color: var(--warn); }
+
+  .legacy-note { margin-top: 18px; font-size: 13.5px; color: var(--muted); max-width: 70ch; }
+
+  /* ---------- празни състояния ---------- */
+  .empty { max-width: 520px; margin: 12vh auto; text-align: center; padding: 0 20px; }
+  .empty h1 { font-size: 22px; margin: 0 0 8px; }
+  .empty p { color: var(--muted); margin: 0 0 18px; }
+  .drop {
+    display: block; border: 2px dashed var(--line); border-radius: var(--radius);
+    padding: 26px; cursor: pointer; background: var(--surface);
+  }
+  .drop.over { border-color: var(--cobalt); background: var(--cobalt-soft); }
+  .no-data { padding: 70px 20px; text-align: center; color: var(--muted); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .rail { position: static; max-height: 44vh; border-right: 0; border-bottom: 1px solid var(--line); padding: 14px 16px; }
+    .detail { padding: 22px 16px 32px; }
+    .head { grid-template-columns: 1fr; }
+    .tag { text-align: left; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .top { padding: 14px 16px; }
+    .presets { width: 100%; }
+    .presets button { flex: 1; padding: 5px 4px; font-size: 13px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 4h13l11 11-13 13L4 17z" fill="var(--cobalt)"/><circle cx="10" cy="10" r="2.5" fill="var(--surface)"/></svg>
+    Цени в Технополис
+  </div>
+  <span class="updated" id="updated"></span>
+  <span class="spacer"></span>
+  <button class="ghost-btn" id="openFile" type="button">Отвори друг .db файл</button>
+  <input type="file" id="fileInput" accept=".db,.sqlite,.sqlite3,application/octet-stream" hidden>
+</header>
+
+<details class="issues" id="issues" hidden></details>
+
+<main id="app">
+  <div class="empty" id="loading"><p>Зареждам базата…</p></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.14.2/dist/sql-wasm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const SQL_CDN = "https://cdn.jsdelivr.net/npm/sql.js@1.14.2/dist/";
+  const DB_URL = "data/prices.db";
+  const TZ = "Europe/Sofia";
+  const DAY = 86400000;
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const eur = new Intl.NumberFormat("bg-BG", { style: "currency", currency: "EUR", minimumFractionDigits: 2 });
+  const num2 = new Intl.NumberFormat("bg-BG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const dateFmt = new Intl.DateTimeFormat("bg-BG", { timeZone: TZ, day: "2-digit", month: "2-digit", year: "numeric" });
+  const dateTimeFmt = new Intl.DateTimeFormat("bg-BG", { timeZone: TZ, day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const fmtEur = (v) => (v == null ? "—" : eur.format(v));
+
+  const state = {
+    SQL: null,
+    products: [],
+    byCode: new Map(),
+    series: new Map(),
+    selected: null,
+    showArchive: false,
+    query: "",
+    preset: "all",
+    from: null,
+    to: null,
+    chart: null,
+    syncing: false,
+  };
+
+  // ------------------------------------------------------------------
+  //  Зареждане
+  // ------------------------------------------------------------------
+  async function boot() {
+    try {
+      state.SQL = await initSqlJs({ locateFile: (f) => SQL_CDN + f });
+    } catch (e) {
+      return showError("Не успях да заредя sql.js от CDN. Провери интернет връзката.");
+    }
+    try {
+      const res = await fetch(`${DB_URL}?v=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error(res.status);
+      loadDb(await res.arrayBuffer());
+    } catch (e) {
+      showPicker();
+    }
+  }
+
+  function loadDb(buffer) {
+    let db;
+    try {
+      db = new state.SQL.Database(new Uint8Array(buffer));
+      readData(db);
+    } catch (e) {
+      console.error(e);
+      return showPicker("Файлът не е валидна база от този проект.");
+    } finally {
+      db?.close();
+    }
+    const fromHash = decodeURIComponent(location.hash.slice(1));
+    if (state.byCode.get(fromHash) && !state.byCode.get(fromHash).active) state.showArchive = true;
+    if (!state.products.some((p) => p.active)) state.showArchive = true;
+    renderShell();
+    const first = state.byCode.has(fromHash) ? fromHash : visibleProducts()[0]?.code;
+    renderRail();
+    if (first) select(first, false);
+  }
+
+  function rows(db, sql) {
+    const res = db.exec(sql);
+    if (!res.length) return [];
+    const { columns, values } = res[0];
+    return values.map((v) => Object.fromEntries(columns.map((c, i) => [c, v[i]])));
+  }
+
+  function readData(db) {
+    const products = rows(db, "SELECT code, name, url, category, target_price, brand, image, active, legacy FROM products");
+    const prices = rows(db, "SELECT code, checked_at, price, in_stock, is_promo, promo_end, source FROM prices ORDER BY code, checked_at, id");
+    const lastRun = rows(db, "SELECT * FROM runs WHERE finished_at IS NOT NULL ORDER BY id DESC LIMIT 1")[0];
+
+    state.series = new Map();
+    for (const r of prices) {
+      if (!state.series.has(r.code)) state.series.set(r.code, []);
+      state.series.get(r.code).push({
+        t: Date.parse(r.checked_at),
+        price: r.price,
+        stock: r.in_stock,
+        promo: !!r.is_promo,
+        promoEnd: r.promo_end,
+        legacy: r.source === "legacy_bgn",
+      });
+    }
+
+    state.products = products.map((p) => {
+      const pts = state.series.get(p.code) || [];
+      const last = pts[pts.length - 1];
+      return {
+        ...p,
+        active: !!p.active && !p.legacy,
+        name: p.name || `Продукт ${p.code}`,
+        last,
+        min: pts.length ? Math.min(...pts.map((x) => x.price)) : null,
+        hasLegacy: pts.some((x) => x.legacy),
+      };
+    });
+    state.byCode = new Map(state.products.map((p) => [p.code, p]));
+
+    // шапка: последна проверка + счупени линкове
+    const upd = $("#updated");
+    upd.textContent = lastRun ? `обновено ${dateTimeFmt.format(new Date(lastRun.finished_at))}` : "";
+    const issues = $("#issues");
+    const errs = lastRun?.errors ? JSON.parse(lastRun.errors) : [];
+    if (errs.length) {
+      issues.hidden = false;
+      issues.innerHTML = `<summary>${errs.length} ${errs.length === 1 ? "линк не се прочете" : "линка не се прочетоха"} при последната проверка</summary>
+        <ul>${errs.map((e) => `<li><a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.name || e.code)}</a>: ${esc(e.error)}</li>`).join("")}</ul>`;
+    } else {
+      issues.hidden = true;
+    }
+  }
+
+  // ------------------------------------------------------------------
+  //  Страничен списък
+  // ------------------------------------------------------------------
+  function visibleProducts() {
+    const q = state.query.trim().toLowerCase();
+    return state.products
+      .filter((p) => state.showArchive || p.active)
+      .filter((p) => !q || p.name.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q) || p.code.includes(q))
+      .sort((a, b) =>
+        (a.active === b.active ? 0 : a.active ? -1 : 1) ||
+        (a.category || "").localeCompare(b.category || "", "bg") ||
+        a.name.localeCompare(b.name, "bg"));
+  }
+
+  function statusLine(p) {
+    if (!p.last) return { text: "още няма данни", hit: false };
+    if (!p.active) return { text: `последно ${dateFmt.format(new Date(p.last.t))}`, hit: false };
+    if (p.target_price == null) return { text: "без желана цена", hit: false };
+    const gap = p.last.price - p.target_price;
+    if (gap <= 0) return { text: `под целта с ${fmtEur(-gap)}`, hit: true };
+    return { text: `още ${fmtEur(gap)} до целта`, hit: false };
+  }
+
+  function renderShell() {
+    $("#app").innerHTML = `
+      <div class="layout">
+        <nav class="rail" aria-label="Продукти">
+          <input class="search" id="search" type="search" placeholder="Търси продукт" aria-label="Търси продукт">
+          <div id="groups"></div>
+          <div class="rail-foot">
+            <label><input type="checkbox" id="archive"> Покажи архивните продукти</label>
+          </div>
+        </nav>
+        <section class="detail" id="detail" aria-live="polite"></section>
+      </div>`;
+    $("#search").addEventListener("input", (e) => { state.query = e.target.value; renderRail(); });
+    const arch = $("#archive");
+    arch.checked = state.showArchive;
+    arch.addEventListener("change", () => { state.showArchive = arch.checked; renderRail(); });
+  }
+
+  function renderRail() {
+    const list = visibleProducts();
+    const groups = new Map();
+    for (const p of list) {
+      const key = p.active ? p.category || "Без категория" : p.category || "Архив";
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(p);
+    }
+    const el = $("#groups");
+    if (!list.length) {
+      el.innerHTML = `<p class="rail-foot">Няма продукти${state.query ? " по това търсене" : ""}.</p>`;
+      return;
+    }
+    el.innerHTML = [...groups].map(([cat, items]) => `
+      <div class="group">
+        <h2>${esc(cat)}</h2>
+        ${items.map((p) => {
+          const s = statusLine(p);
+          return `<button class="item" type="button" data-code="${esc(p.code)}" aria-current="${p.code === state.selected}">
+            <span class="nm">${esc(p.name)}</span>
+            <span class="pr">${p.last ? fmtEur(p.last.price) : "—"}</span>
+            <span class="st${s.hit ? " hit" : ""}">${esc(s.text)}</span>
+          </button>`;
+        }).join("")}
+      </div>`).join("");
+    el.querySelectorAll(".item").forEach((b) => b.addEventListener("click", () => {
+      select(b.dataset.code);
+      if (matchMedia("(max-width: 900px)").matches) $("#detail").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+    }));
+  }
+
+  // ------------------------------------------------------------------
+  //  Детайл на продукт
+  // ------------------------------------------------------------------
+  function select(code, pushHash = true) {
+    const p = state.byCode.get(code);
+    if (!p) return;
+    state.selected = code;
+    if (pushHash) history.replaceState(null, "", `#${encodeURIComponent(code)}`);
+    document.querySelectorAll(".item").forEach((b) => b.setAttribute("aria-current", String(b.dataset.code === code)));
+    renderDetail(p);
+  }
+
+  function priceTag(p) {
+    if (!p.last) return "";
+    const [whole, cents] = num2.format(p.last.price).split(",");
+    const hit = p.target_price != null && p.last.price <= p.target_price;
+    let note = "";
+    if (p.target_price != null) {
+      const gap = p.last.price - p.target_price;
+      note = gap <= 0
+        ? `желана цена ${fmtEur(p.target_price)}, <b>под нея с ${fmtEur(-gap)}</b>`
+        : `желана цена ${fmtEur(p.target_price)}, още <b>${fmtEur(gap)}</b>`;
+    }
+    const promo = p.last.promo && p.last.promoEnd
+      ? `<div class="promo">Промоция до ${dateFmt.format(new Date(p.last.promoEnd))}</div>` : "";
+    const stock = p.last.stock === 0 ? `<div class="note">няма наличност онлайн</div>` : "";
+    return `<div class="tag${hit ? " hit" : ""}">
+        <div class="amount" aria-label="${fmtEur(p.last.price)}"><span class="whole">${whole}</span><span class="cents">${cents}</span><span class="cur">€</span></div>
+        ${note ? `<div class="note">${note}</div>` : ""}${promo}${stock}
+      </div>`;
+  }
+
+  function renderDetail(p) {
+    const pts = state.series.get(p.code) || [];
+    const links = [
+      p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">Отвори в Технополис</a>` : "",
+      p.last ? `<span class="cat">проверено ${dateTimeFmt.format(new Date(p.last.t))}</span>` : "",
+    ].filter(Boolean).join("");
+
+    $("#detail").innerHTML = `
+      <div class="head">
+        <div>
+          <div class="cat">${esc(p.category || "")}${p.brand ? `, ${esc(p.brand)}` : ""}${p.active ? "" : " (не се следи)"}</div>
+          <h1 class="title">${esc(p.name)}</h1>
+          <div class="links">${links}</div>
+        </div>
+        ${priceTag(p)}
+      </div>
+      ${pts.length ? `
+        <div class="controls">
+          <div class="presets" role="group" aria-label="Период">
+            ${[["7", "7 дни"], ["30", "30 дни"], ["90", "3 месеца"], ["365", "1 година"], ["all", "Всичко"]]
+              .map(([v, l]) => `<button type="button" data-preset="${v}" aria-pressed="${state.preset === v}">${l}</button>`).join("")}
+          </div>
+          <div class="dates">
+            <label>от <input type="date" id="from"></label>
+            <label>до <input type="date" id="to"></label>
+          </div>
+        </div>
+        <div class="chart-wrap"><div id="chart" role="img" aria-label="Графика на цената"></div></div>
+        <dl class="stats" id="stats"></dl>
+        ${p.hasLegacy ? `<p class="legacy-note">Цените до края на 2025 г. са записани в лева и са превърнати в евро по фиксирания курс 1,95583.</p>` : ""}
+      ` : `<div class="no-data">Още няма записани цени. Ще се появят след следващата проверка.</div>`}
+    `;
+
+    if (!pts.length) { disposeChart(); return; }
+
+    const first = pts[0].t, last = pts[pts.length - 1].t;
+    $("#from").min = $("#to").min = isoDay(first);
+    $("#from").max = $("#to").max = isoDay(Math.max(last, Date.now()));
+
+    document.querySelectorAll("[data-preset]").forEach((b) =>
+      b.addEventListener("click", () => { state.preset = b.dataset.preset; applyPreset(pts); }));
+    $("#from").addEventListener("change", onDateInput);
+    $("#to").addEventListener("change", onDateInput);
+
+    drawChart(p, pts);
+    applyPreset(pts);
+  }
+
+  // ------------------------------------------------------------------
+  //  Период
+  // ------------------------------------------------------------------
+  const isoDay = (t) => {
+    const d = new Date(t);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+  const dayStart = (s) => new Date(`${s}T00:00:00`).getTime();
+  const dayEnd = (s) => new Date(`${s}T23:59:59`).getTime();
+
+  function applyPreset(pts) {
+    if (!state.preset) state.preset = "all";
+    const first = pts[0].t, last = pts[pts.length - 1].t;
+    const end = Math.max(last, first);
+    const start = state.preset === "all" ? first : Math.max(first, end - Number(state.preset) * DAY);
+    setRange(start, end, true);
+  }
+
+  function onDateInput() {
+    const f = $("#from").value, t = $("#to").value;
+    if (!f || !t) return;
+    let a = dayStart(f), b = dayEnd(t);
+    if (a > b) [a, b] = [dayStart(t), dayEnd(f)];
+    state.preset = null;
+    setRange(a, b, true);
+  }
+
+  function setRange(from, to, moveChart) {
+    state.from = from; state.to = to;
+    $("#from").value = isoDay(from);
+    $("#to").value = isoDay(to);
+    document.querySelectorAll("[data-preset]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.preset === state.preset)));
+    if (moveChart && state.chart) {
+      state.syncing = true;
+      state.chart.dispatchAction({ type: "dataZoom", startValue: from, endValue: to });
+      state.syncing = false;
+    }
+    renderStats();
+  }
+
+  function renderStats() {
+    const p = state.byCode.get(state.selected);
+    const all = state.series.get(p.code) || [];
+    const pts = all.filter((x) => x.t >= state.from && x.t <= state.to);
+    const el = $("#stats");
+    if (!pts.length) { el.innerHTML = `<div class="stat"><dt>За избрания период</dt><dd>няма проверки</dd></div>`; return; }
+
+    const prices = pts.map((x) => x.price);
+    const lo = pts.reduce((a, b) => (b.price < a.price ? b : a));
+    const hi = pts.reduce((a, b) => (b.price > a.price ? b : a));
+    const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+    const change = pts[pts.length - 1].price - pts[0].price;
+    const pct = pts[0].price ? (change / pts[0].price) * 100 : 0;
+    const cls = change < 0 ? "down" : change > 0 ? "up" : "";
+    const sign = change > 0 ? "+" : change < 0 ? "−" : "";
+
+    el.innerHTML = `
+      <div class="stat"><dt>Най-ниска</dt><dd>${fmtEur(lo.price)}<small>${dateFmt.format(new Date(lo.t))}</small></dd></div>
+      <div class="stat"><dt>Най-висока</dt><dd>${fmtEur(hi.price)}<small>${dateFmt.format(new Date(hi.t))}</small></dd></div>
+      <div class="stat"><dt>Средна</dt><dd>${fmtEur(avg)}<small>от ${pts.length} проверки</small></dd></div>
+      <div class="stat"><dt>Промяна за периода</dt><dd class="${cls}">${sign}${fmtEur(Math.abs(change))}<small>${sign}${num2.format(Math.abs(pct))} %</small></dd></div>
+      <div class="stat"><dt>Най-ниска изобщо</dt><dd>${fmtEur(p.min)}<small>${p.last && p.last.price <= p.min ? "сега е най-ниската" : "за цялата история"}</small></dd></div>`;
+  }
+
+  // ------------------------------------------------------------------
+  //  Графика
+  // ------------------------------------------------------------------
+  function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+  // Кръгли граници на оста Y, така че и желаната цена да се вижда
+  function niceBounds(values) {
+    let lo = Math.min(...values), hi = Math.max(...values);
+    if (lo === hi) { lo *= 0.95; hi *= 1.05; }
+    const pad = (hi - lo) * 0.08;
+    lo -= pad; hi += pad;
+    const raw = (hi - lo) / 5;
+    const mag = 10 ** Math.floor(Math.log10(raw));
+    const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw);
+    return { min: Math.max(0, Math.floor(lo / step) * step), max: Math.ceil(hi / step) * step, step };
+  }
+
+  function disposeChart() {
+    state.chart?.dispose();
+    state.chart = null;
+  }
+
+  function drawChart(p, pts) {
+    disposeChart();
+    const el = $("#chart");
+    const chart = echarts.init(el, null, { renderer: "canvas" });
+    state.chart = chart;
+
+    const C = { ink: cssVar("--ink"), muted: cssVar("--muted"), line: cssVar("--line"), cobalt: cssVar("--cobalt"), good: cssVar("--good"), surface: cssVar("--surface") };
+    const target = p.target_price;
+    const data = pts.map((x) => ({ value: [x.t, x.price], promo: x.promo, stock: x.stock, legacy: x.legacy }));
+    const bounds = niceBounds(pts.map((x) => x.price).concat(target ?? []));
+
+    // Периоди с промоционална цена -> оцветени ивици
+    const promoAreas = [];
+    pts.forEach((x, i) => {
+      if (!x.promo) return;
+      const prev = promoAreas[promoAreas.length - 1];
+      const end = pts[i + 1]?.t ?? x.t;
+      if (prev && pts[i - 1]?.promo) prev[1].xAxis = end;
+      else promoAreas.push([{ xAxis: x.t }, { xAxis: end }]);
+    });
+
+    chart.setOption({
+      animation: !reduceMotion,
+      textStyle: { fontFamily: getComputedStyle(document.body).fontFamily },
+      grid: { left: 18, right: 22, top: 26, bottom: 70, containLabel: true },
+      tooltip: {
+        trigger: "axis",
+        backgroundColor: C.surface, borderColor: C.line, textStyle: { color: C.ink },
+        axisPointer: { type: "line", lineStyle: { color: C.muted, type: "dashed" } },
+        formatter: (params) => {
+          const it = params.find((x) => x.seriesId === "price") || params[0];
+          const d = it.data;
+          const extras = [
+            d.promo ? "промоция" : "",
+            d.stock === 0 ? "няма наличност" : "",
+            d.legacy ? "превърнато от лева" : "",
+          ].filter(Boolean).join(", ");
+          const diff = target != null ? d.value[1] - target : null;
+          return `<div style="font-size:13px;color:${C.muted}">${dateTimeFmt.format(new Date(d.value[0]))}</div>
+            <div style="font-size:18px;font-weight:700;margin-top:2px">${fmtEur(d.value[1])}</div>
+            ${diff != null ? `<div style="font-size:13px;color:${diff <= 0 ? C.good : C.muted}">${diff <= 0 ? "под целта с " + fmtEur(-diff) : "над целта с " + fmtEur(diff)}</div>` : ""}
+            ${extras ? `<div style="font-size:12.5px;color:${C.muted};margin-top:2px">${extras}</div>` : ""}`;
+        },
+      },
+      xAxis: {
+        type: "time",
+        axisLine: { lineStyle: { color: C.line } },
+        axisLabel: { color: C.muted, hideOverlap: true },
+        splitLine: { show: false },
+      },
+      yAxis: {
+        type: "value",
+        scale: true,
+        min: bounds.min,
+        max: bounds.max,
+        interval: bounds.step,
+        axisLabel: { color: C.muted, formatter: (v) => `${num2.format(v).replace(/,00$/, "")} €` },
+        splitLine: { lineStyle: { color: C.line } },
+      },
+      dataZoom: [
+        { type: "inside", filterMode: "none" },
+        {
+          type: "slider", filterMode: "none", height: 26, bottom: 14,
+          borderColor: C.line, fillerColor: cssVar("--cobalt-soft"),
+          handleStyle: { color: C.surface, borderColor: C.cobalt },
+          moveHandleStyle: { color: C.cobalt },
+          dataBackground: { lineStyle: { color: C.muted, opacity: .5 }, areaStyle: { color: C.line } },
+          textStyle: { color: C.muted },
+          labelFormatter: (v) => dateFmt.format(new Date(v)),
+        },
+      ],
+      series: [
+        {
+          id: "price",
+          name: "Цена",
+          type: "line",
+          step: "end",
+          data,
+          showSymbol: pts.length <= 45,
+          symbol: "circle",
+          symbolSize: 6,
+          lineStyle: { width: 2.5, color: C.cobalt },
+          itemStyle: { color: C.cobalt },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: cssVar("--cobalt-soft") },
+              { offset: 1, color: "rgba(0,0,0,0)" },
+            ]),
+          },
+          emphasis: { focus: "none", scale: 1.6 },
+          markLine: target == null ? undefined : {
+            silent: true, symbol: "none",
+            lineStyle: { color: C.good, type: [6, 5], width: 1.5 },
+            label: { formatter: `цел ${fmtEur(target)}`, color: C.good, position: "insideEndTop", fontWeight: 600 },
+            data: [{ yAxis: target }],
+          },
+          markArea: promoAreas.length ? {
+            silent: true,
+            itemStyle: { color: cssVar("--cobalt-soft"), opacity: .55 },
+            label: { show: true, position: "insideTop", color: C.cobalt, formatter: "промо", fontSize: 11 },
+            data: promoAreas,
+          } : undefined,
+        },
+      ],
+    });
+
+    chart.on("datazoom", () => {
+      if (state.syncing) return;
+      const dz = chart.getOption().dataZoom[0];
+      if (dz.startValue == null || dz.endValue == null) return;
+      state.preset = null;
+      setRange(dz.startValue, dz.endValue, false);
+    });
+  }
+
+  addEventListener("resize", () => state.chart?.resize());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    const p = state.byCode.get(state.selected);
+    if (p) renderDetail(p);
+  });
+  addEventListener("hashchange", () => {
+    const code = decodeURIComponent(location.hash.slice(1));
+    if (code && code !== state.selected && state.byCode.has(code)) select(code, false);
+  });
+
+  // ------------------------------------------------------------------
+  //  Ръчно отваряне на файл (напр. локално, без GitHub Pages)
+  // ------------------------------------------------------------------
+  const fileInput = $("#fileInput");
+  $("#openFile").addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", async () => {
+    const f = fileInput.files[0];
+    if (f && state.SQL) loadDb(await f.arrayBuffer());
+    fileInput.value = "";
+  });
+
+  function showPicker(message) {
+    $("#app").innerHTML = `
+      <div class="empty">
+        <h1>Отвори базата с цени</h1>
+        <p>${esc(message || "Не намерих data/prices.db до страницата. Избери файла от хранилището ръчно.")}</p>
+        <label class="drop" id="drop">Пусни prices.db тук или натисни, за да го избереш</label>
+      </div>`;
+    const drop = $("#drop");
+    drop.addEventListener("click", () => fileInput.click());
+    drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+    drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+    drop.addEventListener("drop", async (e) => {
+      e.preventDefault(); drop.classList.remove("over");
+      const f = e.dataTransfer.files[0];
+      if (f) loadDb(await f.arrayBuffer());
+    });
+  }
+
+  function showError(msg) {
+    $("#app").innerHTML = `<div class="empty"><h1>Страницата не може да се зареди</h1><p>${esc(msg)}</p></div>`;
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>

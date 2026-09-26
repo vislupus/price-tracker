@@ -1,17 +1,19 @@
 [project]
-name = "data-tech"
-version = "0.1.0"
-description = "Add your description here"
+name = "technopolis-price-tracker"
+version = "2.0.0"
+description = "Ежедневно следене на цени в Технополис със SQLite, Slack известия и графики в GitHub Pages"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "beautifulsoup4==4.13.4",
-    "certifi==2025.4.26",
-    "charset-normalizer==3.4.1",
-    "idna==3.10",
-    "requests==2.32.3",
-    "soupsieve==2.7",
-    "typing-extensions==4.13.2",
+    "beautifulsoup4>=4.13",
+    "pyyaml>=6.0",
+    "requests>=2.32",
     "tzdata>=2025.2",
-    "urllib3==2.4.0",
 ]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

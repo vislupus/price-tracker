@@ -1,0 +1,48 @@
+# ─────────────────────────────────────────────────────────────
+#  Списък с продукти за следене в Технополис
+# ─────────────────────────────────────────────────────────────
+#
+#  Всеки продукт има:
+#    url           – линк към продукта (кодът се взима от /p/<код>)
+#    category      – твоя категория (свободен текст, по нея се групира в сайта)
+#    target_price  – желана цена в EUR. Когато цената стане <= на нея,
+#                    идва съобщение в Slack. Махни реда, ако не искаш известия.
+#    name          – (по избор) твое име; иначе се взима от сайта
+#    active        – (по избор) false = спира проверката, историята се пази
+#
+#  Цените по-долу са ориентировъчни – сложи твоите.
+# ─────────────────────────────────────────────────────────────
+
+settings:
+  # true  = известие всеки ден, докато цената е под целта
+  # false = известие само когато цената падне под целта или поевтинее още
+  repeat_alerts_daily: false
+  # Да праща ли в Slack съобщение, ако някой линк не може да бъде прочетен
+  notify_on_errors: true
+  # Пауза между заявките към сайта (секунди)
+  request_delay: 2
+
+products:
+  - url: https://www.technopolis.bg/bg/Smartfoni-i-mobilni-telefoni/Smartfon-GSM--POCO-F9-Ultra-512-16-Black/p/513937
+    category: Смартфони
+    target_price: 750
+
+  - url: https://www.technopolis.bg/bg/Smartfoni-i-mobilni-telefoni/Smartfon-GSM--SAMSUNG-GALAXY-A17-5G-A176-BLACK/p/508325
+    category: Смартфони
+    target_price: 180
+
+  - url: https://www.technopolis.bg/bg/Laptopi/Laptop-LENOVO-IdeaPad-Slim-3-15IWC11-83RR00U1BM/p/514037
+    category: Лаптопи
+    target_price: 600
+
+  - url: https://www.technopolis.bg/bg/Audio-slushalki/Stereo-slushalki-BOSE-QUIETCOMFORT-BLUE-DUSK/p/304598
+    category: Слушалки
+    target_price: 239
+
+  - url: https://www.technopolis.bg/bg/Ekshan-kameri/Ekshan-kamera-XMART-WF430-4K/p/45108
+    category: Екшън камери
+    target_price: 45
+
+  - url: https://www.technopolis.bg/bg/Ekshan-kameri/Ekshan-kamera-AKASO-V50-X/p/300864
+    category: Екшън камери
+    target_price: 130
