@@ -21,14 +21,22 @@
 # https://www.pazaruvaj.com/
 # https://www.pricemania.bg/
 
-https://www.lcwaikiki.bg/
-https://www.reserved.com/bg/bg/
-https://www2.hm.com/bg_bg/index.html
-https://www.newyorker.de/bg/
-https://www.tom-tailor.bg/
-https://www.aboutyou.bg/tvoyat-magazin
-https://www.uniqlo.com/eu-bg/en/
+# https://www.lcwaikiki.bg/
+# https://www.reserved.com/bg/bg/
+# https://www2.hm.com/bg_bg/index.html
+# https://www.newyorker.de/bg/
+# https://www.tom-tailor.bg/
+# https://www.aboutyou.bg/tvoyat-magazin
+# https://www.uniqlo.com/eu-bg/en/
 
-https://tours.bikearea.org/category/grupa-treking/
-https://cedadventures.com/
-https://rual-travel.com/
+# https://tours.bikearea.org/category/grupa-treking/
+# https://cedadventures.com/
+# https://rual-travel.com/
+
+https://www.wizzair.com/
+https://www.ryanair.com/
+https://www.lufthansa.com/
+https://www.turkishairlines.com/
+https://www.kiwi.com/
+https://www.google.com/travel/flights
+https://www.qatarairways.com/en/homepage.html/
